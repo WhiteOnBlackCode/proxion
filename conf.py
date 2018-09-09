@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
-from os import path, mkdir, environ
+from os import path, mkdir
+from pathlib import Path
 
 from utils import colored, PRL_VERB, PRL_WARN
 
@@ -14,7 +15,7 @@ class Config:
         cls.dont_shuffle = False
 
         # Workspace
-        cls.workdir = environ['HOME'] + '/proxies'
+        cls.workdir = path.join(Path.home(), 'proxies')
         if not path.isdir(cls.workdir):
             mkdir(cls.workdir)
         cls.list_file = 'proxylist.txt'

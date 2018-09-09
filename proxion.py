@@ -7,7 +7,8 @@ from typing import Generator, Dict, List, Tuple
 from checker import CheckerThread, CheckResult
 from conf import Config
 from stats import update_stats
-from utils import prl, PRL_VERB, PRL_WARN, PRL_ERR, check_proxy_format, colored, clear
+from utils import prl, PRL_VERB, PRL_WARN, PRL_ERR, check_proxy_format, clear
+from colorama import init, Fore
 
 banner = """
     ____                  _                      
@@ -22,15 +23,15 @@ PROXY_TYPES = ('socks5', 'socks4', 'https', 'http')
 
 def show_status(results: Tuple[List[CheckResult], List[str]]) -> None:
     working, down = results[0], results[1]
-    clear(colored(banner, choice(('red', 'green', 'blue'))))
+    clear(Fore.__getattribute__(choice(('RED', 'GREEN', 'BLUE'))) + banner + Fore.RESET)
     text = 'Working: '
     protocols = sort_protocols(working)
     for proto in protocols.keys():
         if len(protocols[proto]) > 0:
-            text += ' %s:%s' % (colored(proto.upper(), 'blue'), colored(len(protocols[proto]), 'green'))
+            text += ' %s:%s' % Fore.BLUE + proto.upper() + Fore.RESET, Fore.GREEN + len(protocols[proto]) + Fore.RESET
     prl(text)
-    prl('Down: ' + colored(len(down), 'cyan'))
-    prl('Total tried: ' + colored(len(working) + len(down), 'cyan'))
+    prl('Down: ' + Fore.CYAN + str(len(down)) + Fore.RESET)
+    prl('Total tried: ' + Fore.CYAN + str(len(working) + len(down)) + Fore.RESET)
     print()
 
 
@@ -77,7 +78,7 @@ def main():
     # Start threading
     threads = []
     prl('Checking %s proxies on %s threads' % (
-        colored(len(proxies_to_check), 'green'), colored(Config.threads, 'cyan')))
+        Fore.GREEN + str(len(proxies_to_check)) + Fore.RESET, Fore.CYAN + str(Config.threads) + Fore.RESET))
     for i in range(Config.threads):
         threads.append(CheckerThread(proxies_to_check))
         threads[i].setDaemon(True)
@@ -98,8 +99,9 @@ def main():
 
 if __name__ == '__main__':
     try:
+        init()
         c = Config()  # Initialize configuration
-        clear(colored(banner, choice(('red', 'green', 'blue'))))
+        clear(Fore.__getattribute__(choice(('RED', 'GREEN', 'BLUE'))) + banner + Fore.RESET)
         c.parse_args()  # Parse arguments
         main()  # Enter the Matrix
     except KeyboardInterrupt:

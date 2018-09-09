@@ -7,6 +7,8 @@ from ipaddress import AddressValueError, IPv4Address
 from subprocess import call
 
 from termcolor import colored, cprint
+from platform import system
+from colorama import Fore
 
 PRL_WARN = ('yellow', '!')
 PRL_SU = ('yellow', '#')
@@ -16,19 +18,16 @@ PRL_HEAD = ('cyan', '')
 PRL_VERB = ('blue', '~')
 
 
-def prl(text: str, lvl: iter = ('green', '+'), attrib: list = ()) -> None:
+def prl(text: str, lvl: iter = ('green', '+')) -> None:
     from conf import Config
     if not Config.verbose and lvl == PRL_VERB:
         return
 
     text = str(text)
     if lvl == PRL_HEAD:
-        a = list(attrib)
-        if attrib:
-            a.insert(0, 'bold')
-        cprint(text, lvl[0], attrs=a)
+        print(Fore.__getattribute__(lvl[0].upper()) + text + Fore.RESET)
     else:
-        print(colored('[%s] ' % lvl[1], lvl[0], attrs=attrib) + text)
+        print(Fore.__getattribute__(lvl[0].upper()) + '[%s] ' % lvl[1] + Fore.RESET + text)
 
 
 def choose(options: iter = ('Yes', 'No'), prompt: str = 'Choose action:', default: int = 0) -> int:
@@ -99,5 +98,11 @@ def check_proxy_format(proxy) -> bool:
 
 
 def clear(text: str) -> None:
-    call('clear')
+    try:
+        if system() == 'Windows':
+            call('cls')
+        else:
+            call('clear')
+    except FileNotFoundError:
+        pass
     print(text)
